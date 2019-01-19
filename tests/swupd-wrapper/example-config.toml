@@ -1,0 +1,10 @@
+[upstream]
+url = "https://download.clearlinux.org/update"
+version = @VERSION@
+
+[bundle]
+name = "test"
+description = "test user bundle"
+includes = [ "os-core" ]
+url = "@TESTDIR@"
+bin = [ "/usr/bin/test.sh" ]
