@@ -27,13 +27,18 @@ var removeCmd = &cobra.Command{
 		if len(args) != 2 {
 			return fmt.Errorf("Invalid arguments")
 		}
+		if cmd.PersistentFlags().Changed("run-post") {
+			runPost = false
+		}
+
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		operations.Remove(StateDirectory, ContentDirectory, args[0], args[1])
+		operations.Remove(StateDirectory, ContentDirectory, args[0], args[1], runPost)
 	},
 }
 
 func init() {
+	removeCmd.PersistentFlags().BoolVarP(&runPost, "run-post", "p", true, "Run post-3rd-party hook")
 	rootCmd.AddCommand(removeCmd)
 }

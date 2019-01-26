@@ -22,11 +22,19 @@ import (
 var updateCmd = &cobra.Command{
 	Use: "update",
 	Short: "Update 3rd party bundle content",
+	Args: func(cmd *cobra.Command, args []string) error {
+		if cmd.PersistentFlags().Changed("run-post") {
+			runPost = false
+		}
+
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		operations.Update(StateDirectory, ContentDirectory)
+		operations.Update(StateDirectory, ContentDirectory, runPost)
 	},
 }
 
 func init() {
+	updateCmd.PersistentFlags().BoolVarP(&runPost, "run-post", "p", true, "Run post-3rd-party hook")
 	rootCmd.AddCommand(updateCmd)
 }

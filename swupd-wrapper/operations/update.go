@@ -44,7 +44,7 @@ func updateContent(statedir string, contentdir string, config cublib.TomlConfig)
 	return nil
 }
 
-func Update(statedir string, contentdir string) {
+func Update(statedir string, contentdir string, postJob bool) {
 	// GetLock causes program exit on failure to acquire lockfile
 	cublib.GetLock(statedir)
 	defer cublib.ReleaseLock(statedir)
@@ -71,6 +71,11 @@ func Update(statedir string, contentdir string) {
 		// BUT content chroot doesn't exist and config does => ignored, manual cleanup required
 		if err = updateContent(path.Join(pstatedir, p.Name()), path.Join(chrootdir, p.Name()), conf); err != nil {
 			log.Printf("WARNING: Unable to update (%s %s): %s", conf.Bundle.URL, conf.Bundle.Name, err)
+		}
+	}
+	if postJob {
+		if err = cublib.PostProcess(statedir, contentdir); err != nil {
+			log.Fatalf("%s", err)
 		}
 	}
 }

@@ -24,7 +24,7 @@ import (
 	"clr-user-bundles/cublib"
 )
 
-func Add(uri string, statedir string, contentdir string) {
+func Add(uri string, statedir string, contentdir string, postJob bool) {
 	// GetLock causes program exit on failure to acquire lockfile
 	cublib.GetLock(statedir)
 	defer cublib.ReleaseLock(statedir)
@@ -67,7 +67,7 @@ func Add(uri string, statedir string, contentdir string) {
 	}
 	err = cublib.WriteConfig(configPath, config, false)
 	if err != nil {
-		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name)
+		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
 		log.Fatalf("Unable to save bundle configuration file to 3rd party state directory (%s): %s", pstatedir, err)
 	}
 
@@ -77,14 +77,14 @@ func Add(uri string, statedir string, contentdir string) {
 	}
 	err = os.MkdirAll(pchrootdir, 0755)
 	if err != nil {
-		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name)
+		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
 		log.Fatalf("Unable to make 3rd party state directory (%s): %s", pstatedir, err)
 	}
 
 	certURI := config.Bundle.URL + path.Join("/", version, "Swupd_Root.pem")
 	certPath, err := cublib.GetCert(pstatedir, certURI)
 	if err != nil {
-		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name)
+		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
 		log.Fatalf("Unable to load certificate (%s): %s", certURI, err)
 	}
 
@@ -95,7 +95,7 @@ func Add(uri string, statedir string, contentdir string) {
 	cmd.Stderr = &out
 	err = cmd.Run()
 	if err != nil {
-		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name)
+		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
 		log.Printf("Certificate (%s) isn't trusted: %s", certPath, out.String())
 		log.Fatalf("Please add certificate to trust chain")
 	}
@@ -108,7 +108,7 @@ func Add(uri string, statedir string, contentdir string) {
 		cmd.Stderr = &out
 		err = cmd.Run()
 		if err != nil {
-			Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name)
+			Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
 			log.Fatalf("Unable to install dependency bundle(s) %s to the base system: %s", includes, out.String())
 		}
 	}
@@ -120,10 +120,16 @@ func Add(uri string, statedir string, contentdir string) {
 	cmd.Stderr = &out
 	err = cmd.Run()
 	if err != nil {
-		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name)
+		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
 		log.Fatalf("Unable to install bundle %s from %s: %s", config.Bundle.Name, config.Bundle.URL, out.String())
 	}
 	if err = os.Remove(certPath); err != nil {
 		log.Printf("WARNING: Unable to remove temporary cert (%s): %s", certPath, err)
+	}
+
+	if postJob {
+		if err = cublib.PostProcess(statedir, contentdir); err != nil {
+			log.Fatalf("%s", err)
+		}
 	}
 }

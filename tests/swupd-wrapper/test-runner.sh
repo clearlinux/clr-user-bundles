@@ -55,7 +55,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Install content
-sudo "${BASEDIR}/swupd-3rd-party" add "file:///${PWD}/s/www/update" -c "${PWD}/o"
+sudo "${BASEDIR}/swupd-3rd-party" add "file:///${PWD}/s/www/update" -c "${PWD}/o" -p
 if [ $? -ne 0 ]; then
     echo "Install content failed"
     ret=1
@@ -70,10 +70,17 @@ if [ $? -ne 0 ]; then
     cleanup
 fi
 
-# Run post process job
+# Verify post process job didn't run automatically
+if [ -d "${PWD}/o/bin" ]; then
+    echo "Post process job ran"
+    ret=1
+    cleanup
+fi
+
+# Run post process job manually
 sudo "${BASEDIR}/3rd-party-post" -c "${PWD}/o"
 if [ $? -ne 0 ]; then
-    echo "Post process job failed"
+    echo "Post process of update failed"
     ret=1
     cleanup
 fi
@@ -112,14 +119,6 @@ fi
 diff o/chroot/*/usr/bin/test.sh c2/usr/bin/test.sh
 if [ $? -ne 0 ]; then
     echo "Update to content2 failed to verify"
-    ret=1
-    cleanup
-fi
-
-# Run post process on update
-sudo "${BASEDIR}/3rd-party-post" -c "${PWD}/o"
-if [ $? -ne 0 ]; then
-    echo "Post process of update failed"
     ret=1
     cleanup
 fi

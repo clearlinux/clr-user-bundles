@@ -15,93 +15,16 @@
 package operations
 
 import (
-	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
-	"path"
-	"path/filepath"
 	"clr-user-bundles/cublib"
 )
-
-func setupBins(statedir string, contentdir string, installdir string, bins []string) error {
-	scriptTemplate := `#!/bin/bash
-
-export PATH=%s:%s
-export LD_LIBRARY_PATH=%s:%s
-`
-	internalBinPath := fmt.Sprintf("%s/usr/bin", installdir)
-	internalLdPath := fmt.Sprintf("%s/usr/lib64", installdir)
-	targetPath := path.Join(contentdir, ".bin")
-	err := os.MkdirAll(targetPath, 0755)
-	if err != nil {
-		return err
-	}
-	envPath := os.Getenv("PATH")
-	envLdPath := os.Getenv("LD_LIBRARY_PATH")
-	binScript := fmt.Sprintf(scriptTemplate, internalBinPath, envPath, internalLdPath, envLdPath)
-	for _, b := range bins {
-		if _, err = os.Lstat(path.Join(installdir, b)); err != nil {
-			log.Printf("WARNING: Application %s set to be installed but not found in %s", b, installdir)
-			continue
-		}
-		fullBinScript := fmt.Sprintf("%s%s \"$@\"\n", binScript, path.Join(installdir, b))
-		err = ioutil.WriteFile(path.Join(targetPath, path.Base(b)), []byte(fullBinScript), 0755)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func stageContent(contentdir string) error {
-	items := []string{"bin"}
-	for _, item := range items {
-		old := path.Join(contentdir, item)
-		new := path.Join(contentdir, fmt.Sprintf(".%s", item))
-		err := os.RemoveAll(old)
-		if err != nil && !os.IsNotExist(err) {
-			return err
-		}
-		_, err = os.Stat(new)
-		if os.IsNotExist(err) {
-			continue
-		}
-		err = os.Rename(new, old)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
 
 func ProcessContent(statedir string, contentdir string) {
 	// GetLock causes program exit on failure to acquire lockfile
 	cublib.GetLock(statedir)
 	defer cublib.ReleaseLock(statedir)
-	pstatedir := path.Join(statedir, "3rd-party")
-	chrootdir := path.Join(contentdir, "chroot")
-	dlist, err := ioutil.ReadDir(chrootdir)
+	err := cublib.PostProcess(statedir, contentdir)
 	if err != nil {
-		log.Fatalf("Unable to read 3rd-party content directory (%s): %s", pstatedir, err)
-	}
-
-	for _, p := range dlist {
-		// chroot dir should only be chroot directories and conf files so skip the conf files
-		// as it is easier to make those names from the directory names
-		if ext := filepath.Ext(p.Name()); ext != "" {
-			continue
-		}
-		confPath := "file://" + path.Join(chrootdir, p.Name()) + ".toml"
-		conf, err := cublib.GetConfig(confPath)
-		if err != nil {
-			log.Fatalf("Unable to read 3rd party config (%s): %s", confPath, err)
-		}
-		if err = setupBins(pstatedir, contentdir, path.Join(chrootdir, p.Name()), conf.Bundle.Bin); err != nil {
-			log.Fatalf("Unable to create bin scripts for %s: %s", conf.Bundle.Name, err)
-		}
-	}
-	if err = stageContent(contentdir); err != nil {
-		log.Fatalf("User content not staged successfully to %s: %s", contentdir, err)
+		log.Fatalf("%s", err)
 	}
 }
