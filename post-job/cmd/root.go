@@ -48,5 +48,5 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&StateDirectory, "statedir", "s", "/var/lib/swupd", "swupd state directory")
-	rootCmd.PersistentFlags().StringVarP(&ContentDirectory, "contentdir", "c", "/var/lib/3rd-party", "3rd-party content directory")
+	rootCmd.PersistentFlags().StringVarP(&ContentDirectory, "contentdir", "c", "/opt/3rd-party", "3rd-party content directory")
 }
