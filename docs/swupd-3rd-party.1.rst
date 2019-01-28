@@ -57,8 +57,8 @@ SUBCOMMANDS
     with a certificate trusted by the system trust store.
 
     addflags:
-    - ``-p, --skip-post``
-      Skip running ``3rd-party-post`` processing.
+
+    -    ``-p, --skip-post`` Skip running ``3rd-party-post`` processing.
 
 ``list``
 
@@ -69,16 +69,16 @@ SUBCOMMANDS
     Remove 3rd-party repo based on URI and BUNDLE name of the content.
 
     removeflags:
-    - ``-p, --skip-post``
-      Skip running ``3rd-party-post`` processing.
+
+    -    ``-p, --skip-post`` Skip running ``3rd-party-post`` processing.
 
 ``update`` <updateflags>
 
     Update all 3rd-party repositories on the system.
 
     updateflags:
-    - ``-p, --skip-post``
-      Skip running ``3rd-party-post`` processing.
+
+    -    ``-p, --skip-post`` Skip running ``3rd-party-post`` processing.
 
 
 EXIT STATUS
