@@ -44,7 +44,7 @@ func updateContent(statedir string, contentdir string, config cublib.TomlConfig)
 	return nil
 }
 
-func Update(statedir string, contentdir string, postJob bool) {
+func Update(statedir string, contentdir string, skipPost bool) {
 	// GetLock causes program exit on failure to acquire lockfile
 	cublib.GetLock(statedir)
 	defer cublib.ReleaseLock(statedir)
@@ -73,9 +73,10 @@ func Update(statedir string, contentdir string, postJob bool) {
 			log.Printf("WARNING: Unable to update (%s %s): %s", conf.Bundle.URL, conf.Bundle.Name, err)
 		}
 	}
-	if postJob {
-		if err = cublib.PostProcess(statedir, contentdir); err != nil {
-			log.Fatalf("%s", err)
-		}
+	if skipPost {
+		return
+	}
+	if err = cublib.PostProcess(statedir, contentdir); err != nil {
+		log.Fatalf("%s", err)
 	}
 }

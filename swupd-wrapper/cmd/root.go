@@ -39,7 +39,7 @@ var rootCmd = &cobra.Command{
 
 var StateDirectory string
 var ContentDirectory string
-var runPost bool
+var skipPost bool
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {

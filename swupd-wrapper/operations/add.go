@@ -24,7 +24,7 @@ import (
 	"clr-user-bundles/cublib"
 )
 
-func Add(uri string, statedir string, contentdir string, postJob bool) {
+func Add(uri string, statedir string, contentdir string, skipPost bool) {
 	// GetLock causes program exit on failure to acquire lockfile
 	cublib.GetLock(statedir)
 	defer cublib.ReleaseLock(statedir)
@@ -127,9 +127,10 @@ func Add(uri string, statedir string, contentdir string, postJob bool) {
 		log.Printf("WARNING: Unable to remove temporary cert (%s): %s", certPath, err)
 	}
 
-	if postJob {
-		if err = cublib.PostProcess(statedir, contentdir); err != nil {
+	if skipPost {
+		return
+	}
+	if err = cublib.PostProcess(statedir, contentdir); err != nil {
 			log.Fatalf("%s", err)
-		}
 	}
 }

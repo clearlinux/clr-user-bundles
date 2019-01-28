@@ -27,17 +27,17 @@ var addCmd = &cobra.Command{
 		if len(args) != 1 {
 			return fmt.Errorf("Invalid URI specification")
 		}
-		if cmd.PersistentFlags().Changed("run-post") {
-			runPost = false
+		if cmd.PersistentFlags().Changed("skip-post") {
+			skipPost = true
 		}
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		operations.Add(args[0], StateDirectory, ContentDirectory, runPost)
+		operations.Add(args[0], StateDirectory, ContentDirectory, skipPost)
 	},
 }
 
 func init() {
-	addCmd.PersistentFlags().BoolVarP(&runPost, "run-post", "p", true, "Run post-3rd-party hook")
+	addCmd.PersistentFlags().BoolVarP(&skipPost, "skip-post", "p", false, "Skip running post-3rd-party hooks")
 	rootCmd.AddCommand(addCmd)
 }

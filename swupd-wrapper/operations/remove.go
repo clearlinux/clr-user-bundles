@@ -21,7 +21,7 @@ import (
 	"clr-user-bundles/cublib"
 )
 
-func Remove(statedir string, contentdir string, uri string, name string, postJob bool) {
+func Remove(statedir string, contentdir string, uri string, name string, skipPost bool) {
 	// GetLock causes program exit on failure to acquire lockfile
 	cublib.GetLock(statedir)
 	defer cublib.ReleaseLock(statedir)
@@ -40,9 +40,10 @@ func Remove(statedir string, contentdir string, uri string, name string, postJob
 	if err != nil {
 		log.Printf("WARNING: Unable to remove 3rd-party config (%s): %s", chrootdir + ".toml", err)
 	}
-	if postJob {
-		if err = cublib.PostProcess(statedir, contentdir); err != nil {
-			log.Fatalf("%s", err)
-		}
+	if skipPost {
+		return
+	}
+	if err = cublib.PostProcess(statedir, contentdir); err != nil {
+		log.Fatalf("%s", err)
 	}
 }
