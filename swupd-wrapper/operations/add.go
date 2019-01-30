@@ -20,7 +20,6 @@ import (
 	"path"
 	"os"
 	"os/exec"
-	"strings"
 	"clr-user-bundles/cublib"
 )
 
@@ -101,15 +100,14 @@ func Add(uri string, statedir string, contentdir string, skipPost bool) {
 	}
 
 	if len(config.Bundle.Includes) > 0 {
-		includes := strings.Join(config.Bundle.Includes, " ")
-		cmd = exec.Command("swupd", "bundle-add", includes)
+		cmd = exec.Command("swupd", append([]string{"bundle-add"}, config.Bundle.Includes...)...)
 		out = bytes.Buffer{}
 		cmd.Stdout = &out
 		cmd.Stderr = &out
 		err = cmd.Run()
 		if err != nil {
 			Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false, false)
-			log.Fatalf("Unable to install dependency bundle(s) %s to the base system: %s", includes, out.String())
+			log.Fatalf("Unable to install dependency bundle(s) %s to the base system: %s", config.Bundle.Includes, out.String())
 		}
 	}
 

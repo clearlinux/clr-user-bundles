@@ -5,6 +5,6 @@ version = @VERSION@
 [bundle]
 name = "test"
 description = "test user bundle"
-includes = [ "os-core" ]
+includes = [ "os-core", "os-core-update" ]
 url = "@TESTDIR@"
 bin = [ "/usr/bin/test.sh" ]
