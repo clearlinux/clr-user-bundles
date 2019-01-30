@@ -34,7 +34,7 @@ var removeCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		operations.Remove(StateDirectory, ContentDirectory, args[0], args[1], skipPost)
+		operations.Remove(StateDirectory, ContentDirectory, args[0], args[1], skipPost, true)
 	},
 }
 

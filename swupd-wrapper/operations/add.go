@@ -67,7 +67,7 @@ func Add(uri string, statedir string, contentdir string, skipPost bool) {
 	}
 	err = cublib.WriteConfig(configPath, config, false)
 	if err != nil {
-		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
+		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false, false)
 		log.Fatalf("Unable to save bundle configuration file to 3rd party state directory (%s): %s", pstatedir, err)
 	}
 
@@ -77,14 +77,14 @@ func Add(uri string, statedir string, contentdir string, skipPost bool) {
 	}
 	err = os.MkdirAll(pchrootdir, 0755)
 	if err != nil {
-		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
+		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false, false)
 		log.Fatalf("Unable to make 3rd party state directory (%s): %s", pstatedir, err)
 	}
 
 	certURI := config.Bundle.URL + path.Join("/", version, "Swupd_Root.pem")
 	certPath, err := cublib.GetCert(pstatedir, certURI)
 	if err != nil {
-		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
+		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false, false)
 		log.Fatalf("Unable to load certificate (%s): %s", certURI, err)
 	}
 
@@ -95,7 +95,7 @@ func Add(uri string, statedir string, contentdir string, skipPost bool) {
 	cmd.Stderr = &out
 	err = cmd.Run()
 	if err != nil {
-		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
+		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false, false)
 		log.Printf("Certificate (%s) isn't trusted: %s", certPath, out.String())
 		log.Fatalf("Please add certificate to trust chain")
 	}
@@ -108,7 +108,7 @@ func Add(uri string, statedir string, contentdir string, skipPost bool) {
 		cmd.Stderr = &out
 		err = cmd.Run()
 		if err != nil {
-			Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
+			Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false, false)
 			log.Fatalf("Unable to install dependency bundle(s) %s to the base system: %s", includes, out.String())
 		}
 	}
@@ -120,7 +120,7 @@ func Add(uri string, statedir string, contentdir string, skipPost bool) {
 	cmd.Stderr = &out
 	err = cmd.Run()
 	if err != nil {
-		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false)
+		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false, false)
 		log.Fatalf("Unable to install bundle %s from %s: %s", config.Bundle.Name, config.Bundle.URL, out.String())
 	}
 	if err = os.Remove(certPath); err != nil {

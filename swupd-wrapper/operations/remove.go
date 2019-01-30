@@ -21,10 +21,12 @@ import (
 	"clr-user-bundles/cublib"
 )
 
-func Remove(statedir string, contentdir string, uri string, name string, skipPost bool) {
-	// GetLock causes program exit on failure to acquire lockfile
-	cublib.GetLock(statedir)
-	defer cublib.ReleaseLock(statedir)
+func Remove(statedir string, contentdir string, uri string, name string, skipPost bool, lock bool) {
+	if lock {
+		// GetLock causes program exit on failure to acquire lockfile
+		cublib.GetLock(statedir)
+		defer cublib.ReleaseLock(statedir)
+	}
 	encodedName := cublib.GetEncodedBundleName(uri, name)
 	pstatedir := path.Join(statedir, "3rd-party", encodedName)
 	chrootdir := path.Join(contentdir, "chroot", encodedName)
