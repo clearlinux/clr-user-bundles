@@ -96,7 +96,7 @@ func Add(uri string, statedir string, contentdir string, skipPost bool) {
 	err = cmd.Run()
 	if err != nil {
 		Remove(statedir, contentdir, config.Bundle.URL, config.Bundle.Name, false, false)
-		log.Printf("Certificate (%s) isn't trusted: %s", certPath, out.String())
+		log.Printf("Certificate (%s) isn't trusted: %s", certURI, out.String())
 		log.Fatalf("Please add certificate to trust chain")
 	}
 
