@@ -17,6 +17,7 @@ package operations
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os/exec"
@@ -31,15 +32,32 @@ func updateContent(statedir string, contentdir string, config cublib.TomlConfig)
 	if err != nil {
 		return err;
 	}
-	var out bytes.Buffer
  	certPath := path.Join(contentdir, "/usr/share/clear/update-ca/Swupd_Root.pem")
-	cmd := exec.Command("swupd", "update", "-b", "-N", "-F", format, "-S", statedir, "-p", contentdir, "-u", config.Bundle.URL, "-C", certPath)
+	var cmd *exec.Cmd
+	var out bytes.Buffer
+	cmd = exec.Command("swupd", "update", "-b", "-N", "-F", format, "-S", statedir, "-p", contentdir, "-u", config.Bundle.URL, "-C", certPath)
 	cmd.Stdout = &out
 	cmd.Stderr = &out
 	err = cmd.Run()
 	if err != nil {
 		return errors.New(out.String())
 	}
+	newConfPath := "file://" + path.Join(contentdir, "usr", "user-config.toml")
+	newConfig, err := cublib.GetConfig(newConfPath)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Couldn't load new 3rd-party config: %s", err))
+	}
+	if len(newConfig.Bundle.Includes) > 0 {
+		cmd = exec.Command("swupd", append([]string{"bundle-add"}, newConfig.Bundle.Includes...)...)
+		out = bytes.Buffer{}
+		cmd.Stdout = &out
+		cmd.Stderr = &out
+		err = cmd.Run()
+		if err != nil {
+			return errors.New(fmt.Sprintf("Unable to install dependency bundle(s) %s to the base system: %s", newConfig.Bundle.Includes, out.String()))
+		}
+	}
+
 
 	return nil
 }
