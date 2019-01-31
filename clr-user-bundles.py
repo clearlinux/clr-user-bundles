@@ -135,7 +135,8 @@ def get_base_manifests(includes, url, version):
     """Load upstream manifest files."""
     manifests = {}
     mom = load_manifest(url, version, "MoM")
-    for include in includes:
+    full_includes = includes if "os-core" in includes else includes + ["os-core"]
+    for include in full_includes:
         try:
             include_version = mom['files'][include][2]
         except Exception as _:
