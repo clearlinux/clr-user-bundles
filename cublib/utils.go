@@ -41,12 +41,21 @@ func GetFormat() (string, error) {
 
 func GetVersion(uri string, statedir string) (string, error) {
 	cmd := exec.Command("swupd", "update", "-S", statedir, "-s", "-u", uri)
-	// cmd := exec.Command("swupd", "update", "-s", "-u", uri)
 	var out bytes.Buffer
 	cmd.Stderr = &out
-	err := cmd.Run()
+	err := cmd.Start()
 	if err != nil {
-		if _, ok := err.(*exec.ExitError); !ok {
+		return "", err
+	}
+	if err = cmd.Wait(); err != nil {
+		if exiterr, ok := err.(*exec.ExitError); ok {
+			// swupd update -s will exit with 1 if it was successful so check that case
+			if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
+				if status.ExitStatus() != 1 {
+					return "", err
+				}
+			}
+		} else {
 			return "", err
 		}
 	}
