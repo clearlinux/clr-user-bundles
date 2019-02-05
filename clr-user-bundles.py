@@ -131,11 +131,15 @@ def copy_config(full_config, chrootdir, statedir, version):
     shutil.copyfile(cpath, os.path.join(state_path, "user-config.toml"))
 
 
-def get_base_manifests(includes, url, version):
+def get_base_manifests(includes, url, version, bundle):
     """Load upstream manifest files."""
     manifests = {}
     mom = load_manifest(url, version, "MoM")
-    full_includes = includes if "os-core" in includes else includes + ["os-core"]
+    if bundle:
+        full_includes = [bundle]
+    else:
+        full_includes = includes if "os-core" in includes else includes + ["os-core"]
+
     for include in full_includes:
         try:
             include_version = mom['files'][include][2]
@@ -450,7 +454,7 @@ def build_user_bundle(statedir, chrootdir, config):
     bundle_url = config['bundle']['url']
     included_manifests = get_base_manifests(bundle_includes,
                                             config['upstream']['url'],
-                                            base_version)
+                                            base_version, None)
     manifest_format = included_manifests['os-core']['format']
     previous_version = get_previous_version(statedir)
     version = str(previous_version + 10)
@@ -459,7 +463,7 @@ def build_user_bundle(statedir, chrootdir, config):
     if previous_version == "0":
         previous_manifest = None
     else:
-        previous_manifest = get_base_manifests([bundle_name], f"file:///{manifest_dir}", previous_version)[bundle_name]
+        previous_manifest = get_base_manifests([bundle_name], f"file:///{manifest_dir}", previous_version, bundle_name)[bundle_name]
     copy_certificate(chrootdir, statedir, bundle_name)
     copy_config(config, chrootdir, statedir, version)
     add_metadata(chrootdir, bundle_url, manifest_format, version, bundle_name)
