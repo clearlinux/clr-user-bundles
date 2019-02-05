@@ -43,7 +43,14 @@ func List(statedir string, contentdir string) {
 		confPath := "file://" + path.Join(chrootdir, p.Name()) + ".toml"
 		conf, err := cublib.GetConfig(confPath)
 		if err != nil {
-			log.Printf("WARNING: Unable to read 3rd party config (%s): %s", confPath, err)
+			log.Printf("WARNING: Unable to read 3rd-party config (%s): %s", confPath, err)
+			continue
+		}
+		// Includes can be updated by the 3rd-party repo so show the updated config in that case
+		newConfPath := "file://" + path.Join(chrootdir, p.Name(), "usr", "user-config.toml")
+		newConf, err := cublib.GetConfig(newConfPath)
+		if err != nil {
+			log.Printf("WARNING: Unable to read updated 3rd-party config (%s): %s", newConfPath, err)
 			continue
 		}
 		fmt.Println("")
@@ -57,9 +64,9 @@ func List(statedir string, contentdir string) {
 				fmt.Printf("                   %-28s\n", app)
 			}
 		}
-		if len(conf.Bundle.Includes) > 0 {
+		if len(newConf.Bundle.Includes) > 0 {
 			fmt.Println("Included Bundles:")
-			for _, include := range conf.Bundle.Includes {
+			for _, include := range newConf.Bundle.Includes {
 				fmt.Printf("                   %-28s\n", include)
 			}
 		}
