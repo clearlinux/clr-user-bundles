@@ -20,7 +20,7 @@ install: all
 	install -D -m 00644 swupd-3rd-party.1 $(DESTDIR)/usr/share/man/man1/swupd-3rd-party.1
 
 clean:
-	rm -f swupd-3rd-party 3rd-party-post
+	rm -f swupd-3rd-party 3rd-party-post clr-user-bundles-*.tar.xz
 	rm -fr vendor
 
 vendor: go.mod
@@ -36,8 +36,8 @@ man: $(MANPAGES)
 
 dist: vendor
 	$(eval TMP := $(shell mktemp -d))
-	cp -r . $(TMP)
-	(cd $(TMP); git reset --hard $(VERSION); git clean -xf; rm -fr .git .gitignore)
+	cp -r . $(TMP)/clr-user-bundles-$(VERSION)
+	(cd $(TMP)/clr-user-bundles-$(VERSION); git reset --hard $(VERSION); git clean -xf; rm -fr .git .gitignore)
 	tar -C $(TMP) -cf clr-user-bundles-$(VERSION).tar .
 	xz clr-user-bundles-$(VERSION).tar
 	rm -fr $(TMP)
