@@ -33,3 +33,11 @@ man: $(MANPAGES)
 
 %: docs/%.rst
 	rst2man.py "$<" > "$@.tmp" && mv -f "$@.tmp" "$@"
+
+dist: vendor
+	$(eval TMP := $(shell mktemp -d))
+	cp -r . $(TMP)
+	(cd $(TMP); git reset --hard $(VERSION); git clean -xf; rm -fr .git .gitignore)
+	tar -C $(TMP) -cf clr-user-bundles-$(VERSION).tar .
+	xz clr-user-bundles-$(VERSION).tar
+	rm -fr $(TMP)
