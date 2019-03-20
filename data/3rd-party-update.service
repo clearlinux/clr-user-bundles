@@ -1,0 +1,6 @@
+[Unit]
+Description=Update 3rd-Party Software Content
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/swupd-3rd-party update

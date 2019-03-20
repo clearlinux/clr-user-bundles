@@ -1,0 +1,12 @@
+[Unit]
+Description=Automatically Install 3rd-Party Software Updates
+Documentation=man:swupd-3rd-party_update
+
+[Timer]
+OnBootSec=64min
+OnUnitActiveSec=64min
+AccuracySec=300
+RandomizedDelaySec=2700
+
+[Install]
+WantedBy=multi-user.target
