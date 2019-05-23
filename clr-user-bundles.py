@@ -163,7 +163,7 @@ def get_previous_version(statedir):
     version_path = os.path.join(statedir, "www", "update", "version")
     version = 0
     try:
-        latest_format = sorted(os.listdir(version_path), key=lambda x: int(x.strip("format")))[-1]
+        latest_format = sorted(os.listdir(version_path), key=lambda x: int(x[x.startswith("format") and len("format"):]))[-1]
         with open(os.path.join(version_path, f"{latest_format}", "latest"), "r") as lfile:
             version = int(lfile.read().strip())
     except FileNotFoundError as exptn:
@@ -235,7 +235,7 @@ def scan_chroot(chrootdir, version, previous_version, previous_manifest, manifes
         for dname in dirs:
             entry = []
             path = os.path.join(root, dname)
-            cpath = path.lstrip(chrootdir)
+            cpath = path[path.startswith(chrootdir) and len(chrootdir):]
             dstat = os.lstat(path)
             dhash = get_hash(path)
             if not dhash:
@@ -248,7 +248,7 @@ def scan_chroot(chrootdir, version, previous_version, previous_manifest, manifes
             manifest['filecount'] += 1
         for fname in files:
             path = os.path.join(root, fname)
-            cpath = path.lstrip(chrootdir)
+            cpath = path[path.startswith(chrootdir) and len(chrootdir):]
             fstat = os.lstat(path)
             fhash = get_hash(path)
             if not fhash:
@@ -488,7 +488,7 @@ def main():
         sys.exit(-1)
 
     try:
-        build_user_bundle(args.statedir, args.chrootdir, config)
+        build_user_bundle(args.statedir, args.chrootdir.rstrip("/"), config)
     except Exception as exptn:
         print(f"Unable to create user bundle: {exptn}")
         sys.exit(-1)
