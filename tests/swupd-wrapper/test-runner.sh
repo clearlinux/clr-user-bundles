@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-RET=0
 BASEDIR="$(pwd)"
 TESTDIR="$1"
 
@@ -24,7 +23,7 @@ cleanup() {
         sudo clrtrust remove /etc/ca-certs/trusted/Swupd_Root.pem &> /dev/null
     fi
     popd &> /dev/null
-    exit $RET
+    exit $1
 }
 
 pushd "$TESTDIR" &> /dev/null
@@ -42,122 +41,106 @@ sed -i "s|@TESTDIR@|file:///${PWD}/s/www/update|" test.toml
 sudo "${BASEDIR}/clr-user-bundles.py" s c test.toml
 if [ $? -ne 0 ]; then
     echo "Build content failed"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Install cert to trust store
 sudo clrtrust add Swupd_Root.pem &> /dev/null
 if [ $? -ne 0 ]; then
     echo "Certificate couldn't be added to trust store"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Install content
 sudo "${BASEDIR}/swupd-3rd-party" add "file:///${PWD}/s/www/update" -c "${PWD}/o" -p
 if [ $? -ne 0 ]; then
     echo "Install content failed"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Validate install worked
 diff o/chroot/*/usr/bin/test.sh c/usr/bin/test.sh
 if [ $? -ne 0 ]; then
     echo "Install content failed to verify"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Verify post process job didn't run automatically
 if [ -d "${PWD}/o/bin" ]; then
     echo "Post process job ran"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Run post process job manually
 sudo "${BASEDIR}/3rd-party-post" -c "${PWD}/o"
 if [ $? -ne 0 ]; then
     echo "Post process of update failed"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Verify post process job worked
 PATH="$PWD/o/bin:$PATH" test.sh | grep baz -q
 if [ $? -ne 0 ]; then
     echo "Post process job failed to verify"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 PATH=$PWD/o/bin:$PATH test.sh | grep fooenv -q
 if [ $? -ne 0 ]; then
     echo "Post process job failed to setup environment"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Build content2
 sudo "${BASEDIR}/clr-user-bundles.py" s c2 test.toml
 if [ $? -ne 0 ]; then
     echo "Build content2 failed"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Update to content2
 sudo "${BASEDIR}/swupd-3rd-party" update -c "${PWD}/o"
 if [ $? -ne 0 ]; then
     echo "Update to content2 failed"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Validate update worked
 diff o/chroot/*/usr/bin/test.sh c2/usr/bin/test.sh
 if [ $? -ne 0 ]; then
     echo "Update to content2 failed to verify"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Verify post process of update worked
 PATH="$PWD/o/bin:$PATH" test.sh | grep zab -q
 if [ $? -ne 0 ]; then
     echo "Post process of update failed to verify"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 PATH="$PWD/o/bin:$PATH" test.sh | grep barenv -q
 if [ $? -ne 0 ]; then
     echo "Post process of update failed to setup environment"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Verify remove works
 sudo "${BASEDIR}/swupd-3rd-party" remove "file:///${PWD}/s/www/update" test -c "${PWD}/o"
 if [ $? -ne 0 ]; then
     echo "Remove content failed"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Run post process on removal
 sudo "${BASEDIR}/3rd-party-post" -c "${PWD}/o"
 if [ $? -ne 0 ]; then
     echo "Post process of removal failed"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
 # Verify post process of removal worked
 if [ -d o/bin ]; then
     echo "Post process of removal failed to verify"
-    ret=1
-    cleanup
+    cleanup 1
 fi
 
-cleanup
+cleanup 0
