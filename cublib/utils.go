@@ -42,7 +42,7 @@ func GetFormat() (string, error) {
 func GetVersion(uri string, statedir string) (string, error) {
 	cmd := exec.Command("swupd", "update", "-S", statedir, "-s", "-u", uri)
 	var out bytes.Buffer
-	cmd.Stderr = &out
+	cmd.Stdout = &out
 	err := cmd.Start()
 	if err != nil {
 		return "", err
@@ -62,6 +62,8 @@ func GetVersion(uri string, statedir string) (string, error) {
 	// Output is of the form:
 	// Current OS version: XXX
 	// Latest server version: YYY
+	// ZZZZZZZZZZZ
+	//
 	// Grab YYY
 	// TODO make a swupd-client check-update command to just give us this value.
 	if _, err = out.ReadBytes(':'); err != nil {
@@ -73,7 +75,11 @@ func GetVersion(uri string, statedir string) (string, error) {
 	if _, err = out.ReadByte(); err != nil {
 		return "", err
 	}
-	return strings.TrimSpace(out.String()), nil
+	var version []byte
+	if version, err = out.ReadBytes('\n'); err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(version)), nil
 }
 
 // Take lock for a given statedir, causes program to exit if it would fail to get the lock.
