@@ -20,7 +20,7 @@ import (
 	"log"
 	"path"
 	"path/filepath"
-	"clr-user-bundles/cublib"
+	"github.com/clearlinux/clr-user-bundles/cublib"
 )
 
 func List(statedir string, contentdir string) {

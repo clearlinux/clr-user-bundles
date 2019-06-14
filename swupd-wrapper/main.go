@@ -15,7 +15,7 @@
 package main
 
 import (
-	"clr-user-bundles/swupd-wrapper/cmd"
+	"github.com/clearlinux/clr-user-bundles/swupd-wrapper/cmd"
 )
 
 func main() {

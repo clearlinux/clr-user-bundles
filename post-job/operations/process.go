@@ -16,7 +16,7 @@ package operations
 
 import (
 	"log"
-	"clr-user-bundles/cublib"
+	"github.com/clearlinux/clr-user-bundles/cublib"
 )
 
 func ProcessContent(statedir string, contentdir string) {
