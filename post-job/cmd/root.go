@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"log"
 	"github.com/spf13/cobra"
-	"clr-user-bundles/post-job/operations"
+	"github.com/clearlinux/clr-user-bundles/post-job/operations"
 )
 
 var rootCmd = &cobra.Command{

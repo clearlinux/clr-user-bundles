@@ -18,7 +18,7 @@ import (
 	"log"
 	"os"
 	"path"
-	"clr-user-bundles/cublib"
+	"github.com/clearlinux/clr-user-bundles/cublib"
 )
 
 func Remove(statedir string, contentdir string, uri string, name string, skipPost bool, lock bool) {

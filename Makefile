@@ -6,8 +6,8 @@ MANPAGES := \
 	swupd-3rd-party.1
 
 all: vendor man
-	go build -mod=vendor -o swupd-3rd-party ./swupd-wrapper
-	go build -mod=vendor -o 3rd-party-post ./post-job
+	(cd ./swupd-wrapper && go build -mod=vendor -o ../swupd-3rd-party)
+	(cd ./post-job && go build -mod=vendor -o ../3rd-party-post)
 
 install: all
 	install -D -m 00755 swupd-3rd-party $(DESTDIR)/usr/bin/swupd-3rd-party
