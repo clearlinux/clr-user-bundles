@@ -23,7 +23,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
-	"github.com/clearlinux/clr-user-bundles/cublib"
+	"clr-user-bundles/cublib"
 )
 
 func updateContent(statedir string, contentdir string, config cublib.TomlConfig) error {

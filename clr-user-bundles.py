@@ -173,7 +173,7 @@ def get_previous_version(statedir):
 
 def get_hash(path):
     """Get hash for the file contents."""
-    proc = subprocess.run(["swupd", "hashdump", "--quiet", path], encoding="utf-8", capture_output=True)
+    proc = subprocess.run(["swupd", "hashdump", path], encoding="utf-8", capture_output=True)
     if proc.returncode != 0:
         print(f"Failed to get hash of file {path}, swupd returned: {proc.stderr}, skipping")
         return None

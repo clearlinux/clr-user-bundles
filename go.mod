@@ -1,4 +1,4 @@
-module github.com/clearlinux/clr-user-bundles
+module clr-user-bundles
 
 require (
 	github.com/BurntSushi/toml v0.3.1

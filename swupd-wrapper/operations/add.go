@@ -20,7 +20,7 @@ import (
 	"path"
 	"os"
 	"os/exec"
-	"github.com/clearlinux/clr-user-bundles/cublib"
+	"clr-user-bundles/cublib"
 )
 
 func Add(uri string, statedir string, contentdir string, skipPost bool) {

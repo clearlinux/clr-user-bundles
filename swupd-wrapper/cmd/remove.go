@@ -17,7 +17,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/clearlinux/clr-user-bundles/swupd-wrapper/operations"
+	"clr-user-bundles/swupd-wrapper/operations"
 )
 
 var removeCmd = &cobra.Command{

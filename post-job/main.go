@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/clearlinux/clr-user-bundles/post-job/cmd"
+	"clr-user-bundles/post-job/cmd"
 )
 
 func main() {
