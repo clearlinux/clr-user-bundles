@@ -284,14 +284,15 @@ def create_tar(input_path, output_path, input_name, output_name, transform=False
     tar_name = f"{output_name}.tar"
     tar_path = os.path.join(output_path, tar_name)
     if pack:
-        tar_cmd = f"tar -C {input_path} -cf {tar_path} {input_name[0]} {input_name[1]}"
+        tar_cmd = f"tar -C {input_path} -cf {tar_path} -- {input_name[0]} {input_name[1]}"
     elif transform:
-        tar_cmd = f"tar --no-recursion -C {input_path} -cf {tar_path} {input_name} --transform s/{input_name}/{output_name}/"
+        tar_cmd = f"tar --no-recursion -C {input_path} -cf {tar_path} --transform s/{input_name}/{output_name}/ -- {input_name}"
     else:
-        tar_cmd = f"tar --no-recursion -C {input_path} -cf {tar_path} {input_name}"
+        tar_cmd = f"tar --no-recursion -C {input_path} -cf {tar_path} -- {input_name}"
     proc = subprocess.run(tar_cmd, shell=True, capture_output=True)
     if proc.returncode != 0:
-        raise Exception(f"Unable to create tar file for {os.path.join(input_path, input_name)}")
+        raise Exception(f"Unable to create tar file for {os.path.join(input_path, input_name)} using:\n"
+                        f"{tar_cmd}\n")
     proc = subprocess.run(f"xz {tar_path}", shell=True, capture_output=True)
     if proc.returncode != 0:
         raise Exception(f"Unable to compress tar file for {os.path.join(input_path, input_name)}")
